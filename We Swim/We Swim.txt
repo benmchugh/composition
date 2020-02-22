@@ -1,0 +1,541 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//We Swim Synths: Ben McHugh(2012/13)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(	// Double click on the bracket to the left and hit enter or ctrl+return to run code~(NB Written on 3.5.7, OSX.6.8) Tested last on OSX.12.6
+//Variables for GUI Objects~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	var w, loadw, rvbbutton, fogbutton, fmbutton, abutton, bbutton, cbutton, 
+	formcontrol1, formcontrol2, formcontrol3, fogvol1, fogvol2, fogvol3, fogbox1, fogbox2, fogbox3,
+	fmcontrol1, fmcontrol2, fmcontrol3, fmibox1, fmibox2, fmibox3, fmaslider1, fmaslider2, fmaslider3,
+	fmeslider1, fmeslider2, fmeslider3,
+	aaecontrol, baecontrol, caecontrol,
+	rmixslider, rroomslider, rdampslider;
+//GUI Object Creation
+		w =  Window("We Swim Synths (2012/13)", Rect(700, 50, 600, 700)); //Main Winow
+	w.view.background = Gradient(Color(0.4, 0.6, 0.9), Color.white, \v, 400); //Main Window colour
+		loadw = Window("Loading...", Rect(700, 50, 600, 700)); //Loading Window
+	loadw.view.background = Color.white; //Loading Window colour
+		
+		fogbutton = Button(w, Rect(75, 20, 120, 50)); //On/off button for Fog(Klank) Synth
+		fmbutton = Button(w, Rect(205, 20, 120, 50));  //On/off button for FM Synth
+		abutton = Button(w, Rect(75, 505, 120, 50));
+		bbutton = Button(w, Rect(205, 505, 120, 50));
+		cbutton = Button(w, Rect(335, 505, 120, 50));
+		
+	StaticText(w, Rect(75, 80, 120, 20)).string_("Formant Decay Speed"); //Text object
+	StaticText(w, Rect(10, 125, 60, 50)).string_("Formant Frequency"); //Text object
+		formcontrol1 = Slider2D(w, Rect(75, 100, 120, 120)); //XY Window for formant control
+		formcontrol2 = Slider2D(w, Rect(205, 100, 120, 120)); //XY Window for formant control
+		formcontrol3 = Slider2D(w, Rect(335, 100, 120, 120)); //XY Window for formant control
+
+	StaticText(w, Rect(75, 225, 120, 20)).string_("Fog Amplitude"); //Text 
+		fogvol1 = Slider(w, Rect(75, 245, 95, 20)); //Slider for Fog amplitude
+		fogvol2 = Slider(w, Rect(205, 245, 95, 20)); //Slider for Fog amplitude
+		fogvol3 = Slider(w, Rect(335, 245, 95, 20)); //Slider for Fog amplitude
+		
+	StaticText(w, Rect(175, 225, 200, 20)).string_("Fog Envelope Trigger Speed"); //Text 	
+		fogbox1 = NumberBox(w, Rect(175, 245, 20, 20)); //Number box for envelope impulse
+		fogbox2 = NumberBox(w, Rect(305, 245, 20, 20)); //Number box for envelope impulse
+		fogbox3 = NumberBox(w, Rect(435, 245, 20, 20)); //Number box for envelope impulse		
+
+	StaticText(w, Rect(75, 275, 120, 20)).string_("Rate of Modulation"); //Text 
+	StaticText(w, Rect(10, 315, 60, 50)).string_("Centre Frequency"); //Text 
+		fmcontrol1 = Slider2D(w, Rect(75, 295, 120, 120)); //XY Window for FM CF & ModRate
+		fmcontrol2 = Slider2D(w, Rect(205, 295, 120, 120)); //XY Window for FM CF & ModRate
+		fmcontrol3 = Slider2D(w, Rect(335, 295, 120, 120)); //XY Window for FM CF & ModRate
+		
+	StaticText(w, Rect(75, 415, 120, 20)).string_("FM Amplitude"); //Text 
+		fmaslider1 = Slider(w, Rect(75, 435, 95, 20)); //Slider for FM Amplitude
+		fmaslider2 = Slider(w, Rect(205, 435, 95, 20)); //Slider for FM Amplitude
+		fmaslider3 = Slider(w, Rect(335, 435, 95, 20)); //Slider for FM Amplitude
+
+	StaticText(w, Rect(175, 415, 120, 20)).string_("Modulation Index"); //Text 
+		fmibox1 = NumberBox(w, Rect(175, 435, 20, 20)); //Number box for modulation index
+		fmibox2 = NumberBox(w, Rect(305, 435, 20, 20)); //Number box for modulation index
+		fmibox3 = NumberBox(w, Rect(435, 435, 20, 20)); //Number box for modulation index
+
+	StaticText(w, Rect(75, 455, 200, 20)).string_("FM Envelope Trigger Speed"); //Text 
+		fmeslider1 = Slider(w, Rect(75, 475, 120, 20)); //Slider for FM envelope impulse
+		fmeslider2 = Slider(w, Rect(205, 475, 120, 20)); //Slider for FM envelope impulse
+		fmeslider3 = Slider(w, Rect(335, 475, 120, 20)); //Slider for FM envelope impulse
+	
+	StaticText(w, Rect(75, 555, 200, 20)).string_("A Amp & Env");	
+		aaecontrol = Slider2D(w, Rect(75, 575, 120, 120));
+
+	StaticText(w, Rect(205, 555, 200, 20)).string_("B Amp & Env");	
+		baecontrol = Slider2D(w, Rect(205, 575, 120, 120));
+
+	StaticText(w, Rect(335, 555, 200, 20)).string_("C Amp & Env");	
+		caecontrol = Slider2D(w, Rect(335, 575, 120, 120));
+	
+	StaticText(w, Rect(475, 595, 40, 50)).string_("Reverb Mix"); //Text 
+		rmixslider = Slider(w, Rect(475, 100, 30, 505)); //Slider for Reverb dry to wet mix
+		
+	StaticText(w, Rect(515, 595, 40, 50)).string_("Reverb Room"); //Text 
+		rroomslider = Slider(w, Rect(515, 100, 30, 505)); //Slider for Reverb room size
+		
+	StaticText(w, Rect(555, 595, 40, 50)).string_("Reverb Damp"); //Text 
+		rdampslider = Slider(w, Rect(555, 100, 30, 505)); //Slider for Reverb frequency damping
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SynthDef("fog", //Fog Synth using Klank Ugen
+		{
+			arg namp, imp, mamp, ffreq, fdec, trenv;
+			var array1, array2, array3, outbus, rvbbus, fbus, in, formlet, env, renv;
+				array1 = Array.series(30, Rand(100, 800), Rand(177.7, 244.8)); //Filter Array
+				array2 = Array.series(20, 0.001, 0.05).scramble; //Filter Amplitude Array
+				array3 = ({Rand(0.01, 0.1)}.dup(20)); //Array for flter decay times 
+				rvbbus = 20; //Reverb bus number
+				in = Klank.ar(`[array1, 
+						array2, 
+						array3], 
+						PinkNoise.ar([namp, namp]) //Noise exitation impulse
+						)*0.5; //Attenuate the signal by half
+				formlet = Limiter.ar(Formlet.ar(in, //Formant filter input 
+									ffreq, //Formant frequency
+									0.001, //Formant attack time
+									fdec //Formant decay time
+									),
+							0.9, //Limiter roof
+							0.15 //Limiter response time
+							); 
+				env = EnvGen.kr(Env.perc(0.1, 0.1, 1, -8), //Signal envelope
+						Dust.kr(imp); //Random envelope impulse time
+						);
+				renv = EnvGen.kr(Env.adsr(1, 1, 1, 0.1, 1, -4), trenv); //Envelope for Synth onset
+			Out.ar(rvbbus, renv*((formlet*env)*mamp)); //Send synth to Reverb bus
+		}
+	).writeDefFile; //Create a synth in synth deffs folder to be recalled later
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SynthDef("fm", //Frequency modulation with sine tones
+			{
+				arg  cf, indx, amp, modrate, dense, trenv;
+				var rvbbus, fbus, env, renv, sig;
+					rvbbus = 20; //Reverb bus number		
+					sig = SinOsc.ar(SinOsc.ar(modrate, //Modulator embedded in frequency of Carrier
+										mul: indx*modrate, //Modulation depth
+										add: cf), //Centre frequency
+								mul: amp //Amplitude of Carrier Ocilator
+								); 
+					env = EnvGen.kr(Env.linen(0.1, 1, 0.1, 1, curve: 'sine'), //Envelope for FM Synth
+								Impulse.kr(dense)  //Envelope impulses per second
+								);
+					renv = EnvGen.kr(Env.adsr(1, 1, 1, 0.1, 1, -4), trenv); //Envelope for Synth onset
+				Out.ar(rvbbus, renv*(Limiter.ar(sig, 0.9, 0.15)*env)); //Send to Reverb bus
+			}
+		).writeDefFile; //Create a synth in synth deffs folder to be recalled later
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SynthDef("A", 
+			{
+				arg amp, imp; 
+				var outLR, verb, verblpf, env, reson, lpf, mix;
+					outLR = [0, 1];
+					mix = Mix.fill(12, {
+							SinOsc.ar([
+								100+600.0.rand,
+								100+800.0.rand
+								],
+							mul: 1/12)
+							},
+						SinOsc.ar(1/3.5, 
+							mul: 800, 
+							add: 1000)
+						);	 
+					reson = Resonz.ar(mix, SinOsc.kr(1/2, mul: 500, add: 700), 
+						0.25);
+					env = EnvGen.kr(
+							Env.perc(1, 1, 0.5, -4),
+							Dust.kr(imp)
+							);	 
+					verb = FreeVerb.ar(reson*env, Rand(0.5, 0.75), 0.8, 0.65);
+					verblpf = LPF.ar(verb, 18000);
+				Out.ar(outLR, Limiter.ar(verblpf, 0.9, 0.15)*amp);
+			}
+		).writeDefFile;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SynthDef("B", 
+			{
+				arg amp, imp;
+				var outLR, verb, verblpf, env, reson, lpf, mix;
+					outLR = [0, 1];
+					mix = Mix.fill(12, {
+							SinOsc.ar([
+								300+1400.0.rand,
+								100+800.0.rand
+								],
+							mul: 1/12)
+							},
+						SinOsc.ar(1/6, 
+							mul: 800, 
+							add: 1000)
+						);	 
+					reson = Resonz.ar(mix, SinOsc.kr(1/2, mul: 500, add: 700), 
+						0.25);
+					env = EnvGen.kr(
+							Env.perc(1, 1, 0.5, -4),
+							Dust.kr(imp)
+							);	 
+					verb = FreeVerb.ar(reson*env, 0.75, Rand(0.2, 0.8), 0.75);
+					verblpf = LPF.ar(verb, 18000);
+				Out.ar(outLR, Limiter.ar(verblpf, 0.9, 0.15)*amp);
+			}
+		).writeDefFile;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SynthDef("C", 
+			{
+				arg amp, imp;
+				var outLR, verb, verblpf, env, reson, lpf, mix;
+					outLR = [0, 1];
+					mix = Mix.fill(12, {
+							SinOsc.ar([
+								100+2000.0.rand,
+								100+800.0.rand
+								],
+							mul: 1/12)
+							},
+						SinOsc.ar(1/4, 
+							mul: 800, 
+							add: 1000)
+						);	 
+					reson = Resonz.ar(mix, SinOsc.kr(1/2, mul: 500, add: 700), 
+						0.25);
+					env = EnvGen.kr(
+							Env.perc(1, 1, 0.5, -4),
+							Dust.kr(imp)
+							);	 
+					verb = FreeVerb.ar(reson*env, 0.65, 0.7, Rand(0.4, 0.6));
+					verblpf = LPF.ar(verb, 18000);
+				Out.ar(outLR, Limiter.ar(verblpf, 0.9, 0.15)*amp);
+			}
+		).writeDefFile;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SynthDef("reverb", //Reverb
+			{ 
+				arg mix, room, damp;
+				var inbus, outLR, input, reverb, reverblpf;
+					inbus = 20; //Catch the incoming signal on bus 20 aka the Reverb bus
+					outLR = [0, 1]; //Send to the Left audio out
+					//outR = 1; //Send to the Right audio out
+					input = In.ar(inbus, 2); //Turn the bus into an 
+					reverb = FreeVerb.ar(input, mix, room, damp); //Reverb unit with external control 
+					reverblpf = LPF.ar(reverb, 18000); //Low pass filter to curb extreemly high frequencies
+				Out.ar(outLR, Limiter.ar(reverblpf, 0.9, 0.15)); //Send to the left output
+				//Out.ar(outR, Limiter.ar(reverblpf, 0.9, 0.15)); //Send to the right output
+			}
+	).writeDefFile; //Create a synth in synth deffs folder to be recalled later
+//Code and definitions for the GUI~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		fogbutton.states	=	([ //Create a coloured text button with two states: On and Off
+								["Start Fog Synths", Color.black, Color.red], //On state
+								["Stop Fog Synths", Color.blue, Color.white] //Off state
+							]);
+		fmbutton.states	=	([ //Create a coloured text button with two states: On and Off
+								["Start FM Synths", Color.black, Color.red], //On state
+								["Stop FM Synths", Color.blue, Color.white] //Off state
+							]);
+		abutton.states	=	([
+								["Start A Synth", Color.black, Color.red ],
+								["Stop A Synth", Color.blue, Color.white]
+							]);
+		bbutton.states	=	([
+								["Start B Synth", Color.black, Color.red ],
+								["Stop B Synth", Color.blue, Color.white]
+							]);
+		cbutton.states	=	([
+								["Start C Synth", Color.black, Color.red ],
+								["Stop C Synth", Color.blue, Color.white]
+							]);				
+			
+		fogbutton.action	=	{ //Implimentation/actions of the Fog Synth button
+								var val; //Variable for button value placeholding
+								val = fogbutton.value; //On/Off, 0/1 value for Fog Button
+								val.postln; //Write this value in the post window
+								if (val == 1, //If statement recognising if button value is 0 or 1
+										{ //If it is 1 then run this function
+	~fg1 = Synth.before(r, "fog", [\mamp, 0, \namp, 0.08, \imp, 0, \trenv, 1, \mamp, 0.25, \imp, 1]); //Synth
+								fogvol1.value = 0.5; fogbox1.value = 1; //Default slider position
+	~fg2 = Synth.before(r,"fog", [\mamp, 0, \namp, 0.08, \imp, 0, \trenv, 1, \mamp, 0.25, \imp, 1]); //Synth
+								fogvol2.value = 0.5; fogbox2.value = 1; //Default slider position
+	~fg3 = Synth.before(r, "fog", [\mamp, 0, \namp, 0.08, \imp, 0, \trenv, 1, \mamp, 0.25, \imp, 1]); //Synth
+								fogvol3.value = 0.5; fogbox3.value = 1; //Default slider position
+										},
+										{ //If it is not 1 e.g. 0 then run this function
+	~fg1.set(\trenv, 0); ~fg2.set(\trenv, 0); ~fg3.set(\trenv, 0);
+	fogvol1.value = 0; fogvol2.value = 0; fogvol3.value = 0; //Reset slider position
+	fogbox1.value = 0; fogbox2.value = 0; fogbox3.value = 0; //Reset slider position
+	~fg1.free; ~fg2.free; ~fg3.free; //Free all instances of this synth
+										};
+								)
+							};
+
+		fmbutton.action 	=	{ //Implimentation/actions of the FM Synth button
+								var val; //Variable for button value placeholding
+								val = fmbutton.value; //On/Off, 0/1 value for FM Button
+								val.postln; //Write this value in the post window
+								if (val == 1,  //If statement recognising if button value is 0 or 1
+										{ //If it is 1 then run this function
+			~fm1 = Synth.before(r, "fm", [\amp, 0.25, \dense, 0.5, \trenv, 1, \indx, 1]); //Synth
+			fmaslider1.value = 0.5; fmibox1.value = 1; fmeslider1.value = 0.5; //Default slider position
+			~fm2 = Synth.before(r, "fm", [\amp, 0.25, \dense, 0.5, \trenv, 1, \indx, 1]); //Synth
+			fmaslider2.value = 0.5; fmibox2.value = 1; fmeslider2.value = 0.5; //Default slider position
+			~fm3 = Synth.before(r, "fm", [\amp, 0.25, \dense, 0.5, \trenv, 1, \indx, 1]); //Synth
+			fmaslider3.value = 0.5; fmibox3.value = 1; fmeslider3.value = 0.5; //Default slider position
+										},
+										{ //If it is not 1 e.g. 0 then run this function
+			~fm1.set(\trenv, 0); ~fm2.set(\trenv, 0); ~fm3.set(\trenv, 0); //Set Envelope to 0
+			fmaslider1.value = 0; fmaslider2.value = 0; fmaslider2.value = 0; //Reset slider position
+			fmibox1.value = 0; fmibox2.value = 0; fmibox3.value = 0; //Reset slider position
+			fmeslider1.value = 0; fmeslider2.value = 0; fmeslider3.value = 0; //Reset slider position
+			~fm1.free; ~fm2.free; ~fm3.free; //Free all instances of this synth
+										};
+								)
+							};
+		formcontrol1.action	=	{ //Implimentation/actions of first fog XY slider
+								var x, y; //Variables for XY control placeholding
+								x = (formcontrol1.x.value*0.99)+0.01; //X represents formant decay time
+								y = (formcontrol1.y.value*1900)+100; //Y represents formant frequency
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~fg1.set(\fdec, x, \ffreq, y); //Variables mapped to change synth args
+							};
+		formcontrol2.action	=	{ //Implimentation/actions of second fog XY slider
+								var x, y; //Variables for XY control placeholding
+								x = (formcontrol2.x.value*0.49)+0.01; //X represents formant decay time
+								y = (formcontrol2.y.value*1900)+100; //Y represents formant frequency
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~fg2.set(\fdec, x, \ffreq, y); //Variables mapped to change synth args
+							};
+		formcontrol3.action	=	{ //Implimentation/actions of third fog XY slider
+								var x, y; //Variables for XY control placeholding
+								x = (formcontrol3.x.value*0.49)+0.01; //X represents formant decay time
+								y = (formcontrol3.y.value*1900)+100; //Y represents formant frequency
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~fg3.set(\fdec, x, \ffreq, y); //Variables mapped to change synth args
+							};
+	
+		fogvol1.action		=	{ //Implimentation of first fog amplitude slider
+								var val; //Variable for slider control placeholding
+								val = fogvol1.value*0.25; //Val represents amplitude control
+								val.postln; //Write this value in the post window
+								~fg1.set(\mamp, val); //Variable mapped to change synth arg
+							};
+		fogvol2.action		=	{ //Implimentation of second fog amplitude slider
+								var val; //Variable for slider control placeholding
+								val = fogvol2.value*0.25; //Val represents amplitude control
+								val.postln; //Write this value in the post window
+								~fg2.set(\mamp, val); //Variable mapped to change synth arg
+							};
+		fogvol3.action		=	{ //Implimentation of third fog amplitude slider
+								var val; //Variable for slider control placeholding
+								val = fogvol3.value*0.25; //Val represents amplitude control
+								val.postln; //Write this value in the post window
+								~fg3.set(\mamp, val); //Variable mapped to change synth arg
+							};
+		fogbox1.action 	=	{ //Implimentation of first fog envelope number box
+								var num; //Variable for number control placeholding
+								num = fogbox1.value; //Num represents envelope trigger speed
+								num.postln; //Write this value in the post window
+								~fg1.set(\imp, num); //Variable mapped to change synth arg
+							};
+		fogbox2.action 	=	{ //Implimentation of second fog envelope number box
+								var num; //Variable for number control placeholding
+								num = fogbox2.value; //Num represents envelope trigger speed
+								num.postln; //Write this value in the post window
+								~fg2.set(\imp, num); //Variable mapped to change synth arg
+							};
+		fogbox3.action 	=	{ //Implimentation of third fog envelope number box
+								var num; //Variable for number control placeholding
+								num = fogbox3.value; //Num represents envelope trigger speed
+								num.postln; //Write this value in the post window
+								~fg3.set(\imp, num); //Variable mapped to change synth arg
+							};
+			
+		fmcontrol1.action	=	{ //Implimentation/actions of first FM XY slider
+								var x, y; //Variables for XY control placeholding
+								x = (fmcontrol1.x.value*1980)+20; //X represents FM centre frequency
+								y = fmcontrol1.y.value*2000; //Y represents FM modulation rate
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~fm1.set(\cf, x, \modrate, y); //Variables mapped to change synth args
+							};
+		
+		fmcontrol2.action	=	{ //Implimentation/actions of second FM XY slider
+								var x, y; //Variables for XY control placeholding
+								x = (fmcontrol2.x.value*1980)+20; //X represents FM centre frequency
+								y = fmcontrol2.y.value*2000; //Y represents FM modulation rate
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~fm2.set(\cf, x, \modrate, y); //Variables mapped to change synth args
+							};
+		fmcontrol3.action	=	{ //Implimentation/actions of third FM XY slider
+								var x, y; //Variables for XY control placeholding
+								x = (fmcontrol3.x.value*1980)+20; //X represents FM centre frequency
+								y = fmcontrol3.y.value*2000; //Y represents FM modulation rate
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~fm3.set(\cf, x, \modrate, y); //Variables mapped to change synth args
+							};					
+		fmaslider1.action	=	{ //Implimentation/actions of first FM amplitude slider
+								var val; //Variable for slider control placeholding
+								val = fmaslider1.value*0.25; //Val represents amplitude
+								val.postln; //Write this value in the post window
+								~fm1.set(\amp, val); //Variable mapped to change synth arg
+							};
+		fmaslider2.action	=	{ //Implimentation/actions of second FM amplitude slider
+								var val; //Variable for slider control placeholding
+								val = fmaslider2.value*0.25; //Val represents amplitude
+								val.postln; //Write this value in the post window
+								~fm2.set(\amp, val); //Variable mapped to change synth arg
+							};
+		fmaslider3.action	=	{ //Implimentation/actions of third FM amplitude slider
+								var val; //Variable for slider control placeholding
+								val = fmaslider3.value*0.25; //Val represents amplitude
+								val.postln; //Write this value in the post window
+								~fm3.set(\amp, val); //Variable mapped to change synth arg
+							};
+		fmibox1.action	=	{ //Implimentation/actions of first FM index number box
+								var num; //Variable for number control placeholding
+								num = fmibox1.value; //Num represents envelope trigger speed
+								num.postln; //Write this value in the post window
+								~fm1.set(\indx, num); //Variable mapped to change synth arg
+							};
+		fmibox2.action	=	{ //Implimentation/actions of second FM index number box
+								var num; //Variable for number control placeholding
+								num = fmibox2.value; //Num represents envelope trigger speed
+								num.postln; //Write this value in the post window
+								~fm2.set(\indx, num); //Variable mapped to change synth arg
+							};
+		fmibox3.action	=	{ //Implimentation/actions of third FM index number box
+								var num; //Variable for number control placeholding
+								num = fmibox3.value; //Num represents envelope trigger speed
+								num.postln; //Write this value in the post window
+								~fm3.set(\indx, num); //Variable mapped to change synth arg
+							};
+		fmeslider1.action	=	{ //Implimentation/actions of first FM envelope slider
+								var val; //Variable for slider control placeholding
+								val = fmeslider1.value; //Val represents envelope trigger speed
+								val.postln; //Write this value in the post window
+								~fm1.set(\dense, val); //Variable mapped to change synth arg
+							};
+		fmeslider2.action	=	{  //Implimentation/actions of second FM envelope slider
+								var val; //Variable for slider control placeholding
+								val = fmeslider2.value; //Val represents envelope trigger speed
+								val.postln; //Write this value in the post window
+								~fm2.set(\dense, val); //Variable mapped to change synth arg
+							};
+		fmeslider3.action	=	{  //Implimentation/actions of third FM envelope slider
+								var val; //Variable for slider control placeholding
+								val = fmeslider3.value; //Val represents envelope trigger speed
+								val.postln; //Write this value in the post window
+								~fm3.set(\dense, val); //Variable mapped to change synth arg
+							};
+		abutton.action		=	{
+			var val; //Variable for button value placeholding
+								val = abutton.value; //On/Off, 0/1 value for A synth Button
+								val.postln; //Write this value in the post window
+								if (val == 1,  //If statement recognising if button value is 0 or 1
+										{ //If it is 1 then run this function
+								~asynth = Synth.new("A", [\amp, 1, \imp, 0]);
+										},
+										{ //If it is not 1 e.g. 0 then run this function
+								~asynth.set(\amp, 0);
+								~asynth.free;
+										};
+								)
+							};		
+		bbutton.action		=	{
+			var val; //Variable for button value placeholding
+								val = bbutton.value; //On/Off, 0/1 value for A synth Button
+								val.postln; //Write this value in the post window
+								if (val == 1,  //If statement recognising if button value is 0 or 1
+										{ //If it is 1 then run this function
+								~bsynth = Synth.new("B", [\amp, 1, \imp, 0]);
+										},
+										{ //If it is not 1 e.g. 0 then run this function
+								~bsynth.set(\amp, 0);
+								~bsynth.free;
+										};
+								)
+							};
+		cbutton.action		=	{
+			var val; //Variable for button value placeholding
+								val = cbutton.value; //On/Off, 0/1 value for A synth Button
+								val.postln; //Write this value in the post window
+								if (val == 1,  //If statement recognising if button value is 0 or 1
+										{ //If it is 1 then run this function
+								~csynth = Synth.new("C", [\amp, 1, \imp, 0]);
+										},
+										{ //If it is not 1 e.g. 0 then run this function
+								~csynth.set(\amp, 0);
+								~csynth.free;
+										};
+								)
+							};
+							
+		aaecontrol.action	=	{ //Implimentation/actions of first FM XY slider
+								var x, y; //Variables for XY control placeholding
+								x = aaecontrol.x.value*1; //X represents Impulse time
+								y = aaecontrol.y.value*0.8; //Y represents amplitude
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~asynth.set(\imp, x, \amp, y); //Variables mapped to change synth args
+							};
+							
+		baecontrol.action	=	{ //Implimentation/actions of first FM XY slider
+								var x, y; //Variables for XY control placeholding
+								x = baecontrol.x.value*1; //X represents Impulse time
+								y = baecontrol.y.value*0.8; //Y represents amplitude
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~bsynth.set(\imp, x, \amp, y); //Variables mapped to change synth args
+							};
+		caecontrol.action	=	{ //Implimentation/actions of first FM XY slider
+								var x, y; //Variables for XY control placeholding
+								x = caecontrol.x.value*1; //X represents Impulse time
+								y = caecontrol.y.value*0.8; //Y represents amplitude
+								x.postln; //Write this value in the post window
+								y.postln; //Write this value in the post window
+								~csynth.set(\imp, x, \amp, y); //Variables mapped to change synth args
+							};
+		
+		rmixslider.action	=	{ //Implimentation/actions of Reverb mix slider
+								var val; //Variable for slider control placeholding
+								val = rmixslider.value; //Val represents mix
+								val.postln; //Write this value in the post window
+								r.set(\mix, val); //Variable mapped to change synth arg
+							};
+		rroomslider.action 	=	{ //Implimentation/actions of Reverb room size slider
+								var val; //Variable for slider control placeholding
+								val = rroomslider.value; //Val represents room size
+								val.postln; //Write this value in the post window
+								r.set(\room, val); //Variable mapped to change synth arg
+							};
+		rdampslider.action	=	{ //Implimentation/actions of Reverb frequency damping slider
+								var val; //Variable for slider control placeholding
+								val = rdampslider.value; //Val represents frequency damping
+								val.postln; //Write this value in the post window
+								r.set(\damp, val); //Variable mapped to change synth arg
+							};
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	s.sendSynthDef("fog"); //Send Fog Synth to the server
+	s.sendSynthDef("fm"); //Send FM Synth to the server
+	s.sendSynthDef("reverb"); //Send Reverb Synth to the server
+	loadw.front; //Place loading window in front of all other windows
+	Server.default = s = Server.local;
+	s.boot.doWhenBooted( //When the server is booted execute the code below 
+						{
+					r = Synth.tail(s, "reverb", [\mix, 0.5, \room, 0.5, \damp, 0.5]); //Start the Reverb
+					rmixslider.value = 0.5; rroomslider.value = 0.5; rdampslider.value = 0.5; //Adjust sliders
+					loadw.close; //Close loading window
+					w.front; //Bring the main window to the front
+						}
+					); 
+	w.onClose_( //When the window is closed execute the code below
+				{	  
+					~fg1.free; ~fg2.free; ~fg3.free; //Free all 3 instances of Fog Synth
+					~fm1.free; ~fm2.free; ~fm3.free; //Free all 3 instances of FM Synth
+					r.free; //Free the Reverb
+					s.quit; //Quit the Server
+				}
+			);			
+)
+//End~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

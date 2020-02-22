@@ -1,0 +1,345 @@
+//===========================================================================
+//Ben McHugh (2012) "Im Nebel"===============================================
+//Please Read And Follow The Read Me Steps Before You Run The Code===========
+//===========================================================================
+(	//Double click on the bracket to the left to start the instrument. Close GUI window to finish.
+	var w, on, abutton, bbutton, up, right, down, left, plus, home, minus, one, two, reverbXY, rvdamp;
+	w = Window("Interactive Assignment Ben McHugh (2012)", Rect(700, 50, 450, 450)); 	
+	w.view.background = Gradient(Color.grey, Color.white, \v, 400);
+	
+	StaticText(w, Rect(20, -10, 120, 50)).string_("Dionnect Remote");
+	on = Button(w, Rect(20, 20, 40, 40));
+	on.states = ([["Power", Color.white, Color.black], ["Power", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(140, 15, 120, 50)).string_("Normal Playback");
+	up = Button(w, Rect(112, 20, 25, 50));
+	up.states = ([["^", Color.white, Color.black], ["^", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(190, 55, 120, 50)).string_("Granulator");
+	right = Button(w, Rect(137, 70, 50, 25));
+	right.states = ([[">", Color.white, Color.black], [">", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(140, 95, 120, 50)).string_("Formant Delay");
+	down = Button(w, Rect(112, 95, 25, 50));
+	down.states = ([["v", Color.white, Color.black], ["v", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(10, 55, 120, 50)).string_("rubber");
+	left = Button(w, Rect(62, 70, 50, 25));
+	left.states = ([["<", Color.white, Color.black], ["<", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(88, 135, 120, 50)).string_("Load Synth Defs");
+	abutton = Button(w, Rect(88, 170, 75, 75));
+	abutton.states = ([["A", Color.white, Color.black], ["A", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(275, 15, 120, 50)).string_("Envelope Trigger");
+	bbutton = Button(w, Rect(275, 50, 75, 75));
+	bbutton.states = ([["B", Color.white, Color.black], ["B", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(62, 240, 120, 50)).string_("Reverb Off");
+	minus = Button(w, Rect(62, 275, 30, 30));
+	minus.states = ([["-", Color.white, Color.black], ["-", Color.white, Color.blue]]);
+	
+	home = Button(w, Rect(107, 275, 40, 40));
+	home.states = ([["Home", Color.white, Color.black], ["Home", Color.white, Color.blue]]);
+
+	StaticText(w, Rect(157, 240, 120, 50)).string_("Reverb On");
+	plus = Button(w, Rect(157, 275, 30, 30));
+	plus.states = ([["+", Color.white, Color.black], ["+", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(150, 320, 120, 50)).string_("one");
+	one = Button(w, Rect(112, 330, 30, 30));
+	one.states = ([["1", Color.white, Color.black], ["1", Color.white, Color.blue]]);
+	
+	StaticText(w, Rect(150, 365, 120, 50)).string_("two");
+	two = Button(w, Rect(112, 375, 30, 30));
+	two.states = ([["2", Color.white, Color.black], ["2", Color.white, Color.blue]]);
+
+	StaticText(w, Rect(225, 115, 120, 50)).string_("Reverb Room Size");
+	StaticText(w, Rect(180, 180, 120, 50)).string_("Reverb 
+Mix 
+Ratio");
+	
+	reverbXY = Slider2D(w, Rect(225, 150, 200, 200));
+	reverbXY.action = {
+					var x, y;
+					x = reverbXY.x.value;
+					y = reverbXY.y.value;
+					~rv.set(\mix, y, \room, x);
+					x.postln;
+					y.postln;	
+				};
+	
+	StaticText(w, Rect(225, 340, 200, 50)).string_("Reverb Frequency Dampening");
+	rvdamp = Slider(w, Rect(225, 375, 200, 20));
+	rvdamp.action = {var val = rvdamp.value; ~rv.set(\damp, val)};
+//=====================================================================================
+	SynthDef("imnblpback",  //Ordinary playback of buffer
+			{
+				arg amp, trig, mtrig, bnum;
+				var outbus, rbus, sig, env, menv, out;
+					outbus = [0, 1];
+					rbus = 20;
+					sig = PlayBuf.ar([1, 1], 
+									bnum, 
+									BufRateScale.kr(bnum)*1, 
+									loop: 1
+									);
+					env = EnvGen.ar(Env.adsr(0.1, 1, 1, 0.1, 1, -4), trig);
+					menv = EnvGen.ar(Env.adsr(0.05, 1, 1, 0.05, 1, -4), mtrig);
+					out = (Limiter.ar((sig*amp), 1, 0.015)*env)*menv;
+				Out.ar(rbus, out);
+				Out.ar(outbus, out);
+			}
+		).writeDefFile;
+		
+	SynthDef("imnblgrainwii", //Text Granulator
+			{
+				arg amp, trig, centrepos, trate, mtrig, bnum;
+				var outbus, rbus, dur, grainbuff, env, menv, out;
+					outbus = 0;
+					rbus = 20;
+					dur = 4 / trate;
+					grainbuff = TGrains.ar(2, 
+									Impulse.ar(trate), 
+									bnum, 
+									1, 
+									centrepos, 
+									dur, 
+									0, 
+									0.1,
+									2
+								);	
+					env = EnvGen.ar(Env.adsr(0.05, 1, 1, 0.1, 1, -4), trig);
+					menv = EnvGen.ar(Env.adsr(0.05, 1, 1, 0.05, 1, -4), mtrig);
+					out =	 (Limiter.ar(LPF.ar(grainbuff, 18000)*amp, 1, 0.015)*env)*menv;
+				Out.ar(rbus, out);
+				Out.ar(outbus, out);
+			}
+		).writeDefFile;
+
+	SynthDef("rubber", //Audio rubber with resonant low pass filter
+			{	
+				arg amp, playhead, trig, mtrig, f, bnum;
+				var outbus, rbus, sig, env, menv, out;	
+					outbus = [0, 1];
+					rbus = 20;
+					sig =  BufRd.ar([1, 1], 
+								bnum, 
+								K2A.ar(playhead)
+								);
+					env = EnvGen.ar(Env.adsr(0.1, 1, 1, 0.1, 1, -4), trig);
+					menv = EnvGen.ar(Env.adsr(0.05, 1, 1, 0.05, 1, -4), mtrig);
+					out = (Limiter.ar((RLPF.ar((sig*amp), f, 0.01)), 1, 0.015)*env)*menv;
+				Out.ar(rbus, out);
+				Out.ar(outbus, out);
+			}
+		).writeDefFile;
+		
+	SynthDef("formdelay", //Formant filter with non interpolating delay line
+			{
+				arg amp, ffreq, fdec, trig, mtrig;
+				var outbus, rbus, source, form, delay, env, menv, out;
+					outbus = [0, 1];
+					rbus = 20;
+					source = BPF.ar(WhiteNoise.ar(0.1), 
+								1000, 
+								0.5);
+					form = Formlet.ar(source, 
+								ffreq, 
+								0.001, 
+								fdec);
+					delay = CombC.ar(Decay.ar(form, 
+											0.2,
+											PinkNoise.ar),
+										1, 
+										0.02, 
+										1, 
+										mul: amp);
+					env = EnvGen.ar(Env.adsr(0.1, 1, 1, 0.1, 1, -4), trig);
+					menv = EnvGen.ar(Env.adsr(0.05, 1, 1, 0.05, 1, -4), mtrig);
+					out = (Limiter.ar(delay, 1, 0.15)*env)*menv;
+				Out.ar(rbus, out);
+				Out.ar(outbus, out);	
+			}
+		).writeDefFile;
+		
+	SynthDef("reverb", //Reverb
+			{ 
+				arg mix, room, damp, amp;
+				var inbus, outbus, input, reverb, reverblpf;
+					inbus = 20; 
+					outbus = [0, 1]; 
+					input = In.ar(inbus, 2);  
+					reverb = FreeVerb.ar(input, mix, room, damp); 
+					reverblpf = LPF.ar(reverb, 18000); 
+				Out.ar(outbus, reverblpf*amp);
+			}
+		).writeDefFile;
+//=====================================================================================
+	~wii = WiiOSCClient.new; //Start listening to Wii messages
+
+	Server.default = s = Server.local;
+	s.boot.doWhenBooted( 
+						{
+					w.front;
+					s.sendSynthDef("imnblpback");
+					s.sendSynthDef("imnblgrainwii");
+					s.sendSynthDef("rubber");
+					s.sendSynthDef("formdelay");
+					s.sendSynthDef("reverb");
+					~wii.calibrate = false; 
+	~source = Buffer.read(s,"sounds/ImNebelTextMono.aif");
+						}
+					);
+//=====================================================================================
+	~wii.setAction(\bUp, //Wii O Mapping 
+				{
+					arg val;
+					var on = val.value;
+					if (on > 0, {~play.set(\trig, 1)},
+							{~play.set(\trig, 0)}
+						);
+					on.postln;
+				}
+			);
+	~wii.setAction(\bRight, 
+				{
+					arg val;
+					var on = val.value;
+					if (on > 0, {~grain.set(\trig, 1)}, 
+							{~grain.set(\trig, 0)}
+						);
+					on.postln;
+				}
+			);
+	~wii.setAction(\bLeft, 
+				{
+					arg val;
+					var on = val.value;
+					if (on > 0, {~rub.set(\trig, 1)}, 
+							{~rub.set(\trig, 0)}
+						);
+					on.postln;
+				}
+			);
+	~wii.setAction(\bDown, 
+				{
+					arg val;
+					var on = val.value;
+					if (on > 0, {~fd.set(\trig, 1)}, 
+							{~fd.set(\trig, 0)}
+						);
+					on.postln;
+				}
+			);
+	~wii.setAction(\bA, 
+				{
+					arg val;
+					var on = val.value;
+					if ( on > 0, {
+					~rv = Synth.tail(s, "reverb", [\amp, 0]);
+					~play = Synth.before(~rv, "imnblpback", [\amp, 0.2, \bnum, ~source]);
+					~grain = Synth.before(~rv, "imnblgrainwii", [\amp, 4, \bnum, ~source]); 
+					~rub = Synth.before(~rv, "rubber", [\amp, 0.1, \bnum, ~source]);
+					~fd = Synth.before(~rv, "formdelay", [\amp, 0.2, \bnum, ~source]);
+							}
+					)
+				}
+			);
+	~wii.setAction(\bB, 
+				{
+					arg val;
+					var on = val.value;
+					if (on > 0, {
+								~grain.set(\mtrig, 1); 
+								~play.set(\mtrig, 1); 
+								~rub.set(\mtrig, 1); 
+								~fd.set(\mtrig, 1);
+							}, 
+							{
+								~grain.set(\mtrig, 0);
+								 ~play.set(\mtrig, 0); 
+								 ~rub.set(\mtrig, 0);
+								 ~fd.set(\mtrig, 0);
+							}
+						);
+					on.postln;
+				}
+			);
+	~wii.setAction(\ax,
+				{
+					arg val;
+					var trate, x, ffreq, f;
+					trate = (val.value*200);
+					ffreq = (val.value*2100);
+					f = (val.value*11800)+200;
+					~grain.set(\trate, trate);
+					~rub.set(\f, f);
+					~fd.set(\ffreq, ffreq);
+				 	trate.postln;
+				 	ffreq.postln;
+				}
+			);
+	~wii.setAction(\ay,
+				{
+					arg val;
+					var centrepos, playhead, fdec;
+					centrepos = (
+								(
+									(val.value / -1) 
+								+1)
+							*3062650);
+					playhead = (
+								(
+									(val.value / -1)
+								+1)
+							*(2*44100));
+					fdec = (
+								(
+									(val.value / -1)
+								+1)
+							*0.25);
+					~grain.set(\centrepos, centrepos);
+					~rub.set(\playhead, playhead);
+					~fd.set(\fdec, fdec);
+					centrepos.postln;
+					playhead.postln;
+					fdec.postln;
+				}
+			);
+	~wii.setAction(\bMinus, 
+			{
+				arg val;
+				var on = val.value;
+				if (on > 0, {~rv.set(\amp, 0)});
+				on.postln;
+			}
+		);
+	~wii.setAction(\bPlus, 
+			{
+				arg val;
+				var on = val.value;
+				if (on > 0, {~rv.set(\amp, 1)});
+				on.postln;
+			}
+		);	
+//=====================================================================================
+	w.onClose = (
+			{
+				~wii.calibrate = false; 
+				~wii.removeAction(\bB);
+				~wii.removeAction(\bA);
+				~wii.removeAction(\bPlus);
+				~wii.removeAction(\bMinus);
+				~wii.removeAction(\bUp);
+				~wii.removeAction(\bRight);
+				~wii.removeAction(\bLeft);
+				~wii.removeAction(\bDown);
+				~wii.removeAction(\ax);
+				~wii.removeAction(\ay);
+				~wii.stop;
+				s.quit;
+			}
+		);
+)
+//End==================================================================================
